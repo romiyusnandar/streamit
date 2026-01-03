@@ -41,14 +41,24 @@ export function AnimeCard({ anime, index }: AnimeCardProps) {
           </div>
 
           {/* Rating Badge */}
-          <div className="absolute top-2 right-2 px-2 py-1 rounded-md bg-black/70 backdrop-blur-sm text-xs font-medium flex items-center gap-1">
+          {/* <div className="absolute top-2 right-2 px-2 py-1 rounded-md bg-black/70 backdrop-blur-sm text-xs font-medium flex items-center gap-1">
             ⭐ {anime.rating}
-          </div>
+          </div> */}
 
           {/* Status Badge */}
           {anime.status === "ongoing" && (
-            <div className="absolute top-2 left-2 px-2 py-1 rounded-md bg-primary/90 backdrop-blur-sm text-xs font-medium">
+            <div className="absolute top-2 left-2 px-2 py-1 rounded-md bg-green-600 text-white backdrop-blur-sm text-xs font-medium">
               Ongoing
+            </div>
+          )}
+          {anime.status === "completed" && (
+            <div className="absolute top-2 left-2 px-2 py-1 rounded-md bg-blue-600 text-white backdrop-blur-sm text-xs font-medium">
+              Completed
+            </div>
+          )}
+          {anime.status === "upcoming" && (
+            <div className="absolute top-2 left-2 px-2 py-1 rounded-md bg-orange-600 text-white backdrop-blur-sm text-xs font-medium">
+              Upcoming
             </div>
           )}
         </div>

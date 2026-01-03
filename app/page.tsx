@@ -2,11 +2,9 @@ import { Suspense } from "react";
 import { api } from "@/services/api";
 import { HeroCarousel } from "@/components/features/hero-carousel";
 import { AnimeRow } from "@/components/features/anime-row";
-import { AnimeGrid } from "@/components/features/anime-grid";
 import {
   HeroSkeleton,
   AnimeRowSkeleton,
-  AnimeGridSkeleton,
 } from "@/components/features/loading-skeletons";
 
 async function FeaturedSection() {
@@ -14,15 +12,20 @@ async function FeaturedSection() {
   return <HeroCarousel featured={featured} />;
 }
 
-async function TrendingSection() {
-  const trending = await api.getTrending();
-  return <AnimeRow title="Trending Now" anime={trending} href="/trending" />;
+async function OngoingSection() {
+  const ongoing = await api.getOngoing();
+  return <AnimeRow title="Ongoing" anime={ongoing} href="/ongoing" />;
 }
 
-async function SeasonalSection() {
-  const seasonal = await api.getSeasonal();
-  return <AnimeGrid title="This Season" anime={seasonal} />;
+async function CompletedSection() {
+  const completed = await api.getCompleted();
+  return <AnimeRow title="Completed" anime={completed} href="/completed" />;
 }
+
+// async function AllAnimeSection() {
+//   const allanime = await api.getAllAnime();
+//   return <AnimeRow title="All Anime" anime={allanime} href="/anime" />;
+// }
 
 export default function HomePage() {
   return (
@@ -34,15 +37,20 @@ export default function HomePage() {
 
       {/* Content Sections */}
       <div className="container px-4 md:px-6 space-y-12 md:space-y-16">
-        {/* Trending Row */}
+        {/* Ongoing Row */}
         <Suspense fallback={<AnimeRowSkeleton />}>
-          <TrendingSection />
+          <OngoingSection />
         </Suspense>
 
-        {/* Seasonal Grid */}
-        <Suspense fallback={<AnimeGridSkeleton />}>
-          <SeasonalSection />
+        {/* Completed Row */}
+        <Suspense fallback={<AnimeRowSkeleton />}>
+          <CompletedSection />
         </Suspense>
+
+        {/* Trending Row
+        <Suspense fallback={<AnimeRowSkeleton />}>
+          <AllAnimeSection />
+        </Suspense> */}
       </div>
     </div>
   );

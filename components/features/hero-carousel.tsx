@@ -64,10 +64,10 @@ export function HeroCarousel({ featured }: HeroCarouselProps) {
                 {currentAnime.title}
               </h1>
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                <span className="flex items-center gap-1">
+                {/* <span className="flex items-center gap-1">
                   ⭐ {currentAnime.rating}
-                </span>
-                <span>•</span>
+                </span> */}
+                {/* <span>•</span> */}
                 <span>{currentAnime.year}</span>
                 <span>•</span>
                 <span>{currentAnime.episodes} Episodes</span>

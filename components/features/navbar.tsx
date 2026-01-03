@@ -28,22 +28,16 @@ export function Navbar() {
             Home
           </Link>
           <Link
+            href="/schedule"
+            className="transition-colors hover:text-foreground/80 text-foreground/60"
+          >
+            Schedule
+          </Link>
+          <Link
             href="/browse"
             className="transition-colors hover:text-foreground/80 text-foreground/60"
           >
             Browse
-          </Link>
-          <Link
-            href="/trending"
-            className="transition-colors hover:text-foreground/80 text-foreground/60"
-          >
-            Trending
-          </Link>
-          <Link
-            href="/seasonal"
-            className="transition-colors hover:text-foreground/80 text-foreground/60"
-          >
-            Seasonal
           </Link>
         </nav>
 

@@ -1,3 +1,31 @@
+// API Response Types (from Otakudesu API)
+interface OtakudesuAnime {
+  title: string;
+  poster: string;
+  episodes: string;
+  animeId: string;
+  latestReleaseDate: string;
+  releaseDay: string;
+  otakudesuUrl: string;
+}
+
+interface OtakudesuResponse {
+  statusCode: number;
+  statusMessage: string;
+  message: string;
+  data: {
+    animeList: OtakudesuAnime[];
+  };
+  pagination: {
+    currentPage: number,
+    prevPage: boolean,
+    hasPrevPage: boolean,
+    nextPage: number,
+    hasNextPage: boolean,
+    totalPages: number
+  }
+}
+
 // Types for our API responses
 export interface Anime {
   id: string;
@@ -114,18 +142,122 @@ const MOCK_ANIME: Anime[] = [
 // Simulated API delay
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+// Get base URL from environment
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://wajik-anime-api.vercel.app/otakudesu';
+
+// Helper function to map Otakudesu API response to our Anime interface
+function mapOtakudesuToAnime(otakuAnime: OtakudesuAnime): Anime {
+  return {
+    id: otakuAnime.animeId,
+    title: otakuAnime.title,
+    description: `Latest Episode: ${otakuAnime.episodes} • Airs on ${otakuAnime.releaseDay}`,
+    coverImage: otakuAnime.poster,
+    bannerImage: otakuAnime.poster,
+    rating: 0, // API doesn't provide rating
+    episodes: parseInt(otakuAnime.episodes) || 0,
+    status: "ongoing",
+    genres: [],
+    year: new Date().getFullYear(),
+    season: undefined,
+  };
+}
+
 // API functions
 export const api = {
   // Get featured anime (for hero carousel)
   async getFeatured(): Promise<Anime[]> {
-    await delay(500);
-    return MOCK_ANIME.slice(0, 3);
+    try {
+      const response = await fetch(`${BASE_URL}/ongoing`, {
+        next: { revalidate: 3600 }, // Revalidate every hour
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch featured anime');
+      }
+
+      const data: OtakudesuResponse = await response.json();
+
+      // Map and return top 5 anime
+      return data.data.animeList
+        .slice(0, 5)
+        .map(mapOtakudesuToAnime);
+    } catch (error) {
+      console.error('Error fetching featured anime:', error);
+      // Fallback to mock data on error
+      return MOCK_ANIME.slice(0, 3);
+    }
   },
 
-  // Get trending anime
+  // Get trending anime (using ongoing for now)
   async getTrending(): Promise<Anime[]> {
-    await delay(500);
-    return MOCK_ANIME.sort((a, b) => b.rating - a.rating);
+    try {
+      const response = await fetch(`${BASE_URL}/ongoing`, {
+        next: { revalidate: 1800 }, // Revalidate every 30 minutes
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch trending anime');
+      }
+
+      const data: OtakudesuResponse = await response.json();
+
+      // Return first 12 anime
+      return data.data.animeList
+        .slice(0, 12)
+        .map(mapOtakudesuToAnime);
+    } catch (error) {
+      console.error('Error fetching trending anime:', error);
+      return MOCK_ANIME.sort((a, b) => b.rating - a.rating);
+    }
+  },
+
+  // Get ongoing anime
+  async getOngoing(): Promise<Anime[]> {
+    try {
+      const response = await fetch(`${BASE_URL}/ongoing`, {
+        next: { revalidate: 1800 }, // Revalidate every 30 minutes
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch ongoing anime');
+      }
+
+      const data: OtakudesuResponse = await response.json();
+
+      // Return first 12 anime
+      return data.data.animeList
+        .slice(0, 12)
+        .map(mapOtakudesuToAnime);
+    } catch (error) {
+      console.error('Error fetching ongoing anime:', error);
+      return MOCK_ANIME.filter(a => a.status === "ongoing");
+    }
+  },
+
+  // Get completed anime
+  async getCompleted(): Promise<Anime[]> {
+    try {
+      const response = await fetch(`${BASE_URL}/completed`, {
+        next: { revalidate: 3600 }, // Revalidate every hour
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch completed anime');
+      }
+
+      const data: OtakudesuResponse = await response.json();
+
+      // Map and return first 12 anime
+      return data.data.animeList
+        .slice(0, 12)
+        .map((anime) => ({
+          ...mapOtakudesuToAnime(anime),
+          status: "completed" as const,
+        }));
+    } catch (error) {
+      console.error('Error fetching completed anime:', error);
+      return MOCK_ANIME.filter(a => a.status === "completed");
+    }
   },
 
   // Get seasonal anime
